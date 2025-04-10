@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Container, Grid, Typography, Box } from '@mui/material';
 import Header from '../../components/Header';
@@ -9,6 +9,16 @@ const PropertyListings = () => {
   const navigate = useNavigate();
   const listings = location.state;
 
+  // Always declare hooks before any conditional return
+  const handleCardClick = useCallback((property) => {
+    navigate('/property-info', {
+      state: {
+        ...property,
+        allProperties: listings
+      }
+    });
+  }, [navigate, listings]);
+
   if (!listings || !listings.length) {
     return (
       <Container>
@@ -18,15 +28,6 @@ const PropertyListings = () => {
       </Container>
     );
   }
-
-  const handleCardClick = (property) => {
-    navigate('/property-info', {
-      state: {
-        ...property,
-        allProperties: listings  // ✅ Send all listings for map/nearby use
-      }
-    });
-  };
 
   return (
     <Box sx={{ bgcolor: '#fafafa', minHeight: '100vh' }}>
