@@ -13,34 +13,35 @@ const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 export const searchProperties = async (query) => {
   try {
     await delay(300);
-    const isZip = /^\d{5}$/.test(query);
+    const isZip = /^\d{5}$/.test(query.trim());
 
-    const response = await realtyApi.get('/properties/v3/list', {
-      params: {
-        limit: 10,
-        offset: 0,
-        sort: 'newest',
-        postal_code: isZip ? query : undefined,
-        city: !isZip ? query : undefined
-      }
-    });
+    const payload = {
+      limit: 20,
+      offset: 0,
+      sort: 'newest',
+      ...(isZip
+        ? { postal_code: query.trim() }
+        : { city: query.trim() })
+    };
+
+    const response = await realtyApi.post('/properties/v3/list', payload);
 
     const results = response?.data?.data?.home_search?.results || [];
 
     return results.map((item) => ({
       property_id: item?.property_id,
-      price: item?.list_price || null,
-      image: item?.primary_photo?.href || null,
-      beds: item?.description?.beds ?? null,
-      baths: item?.description?.baths ?? null,
-      sqft: item?.description?.sqft ?? null,
-      location: item?.location || {},
-      estimate: item?.estimate?.estimate ?? null,
-      rental_estimate: item?.rental_estimate ?? null,
-      raw: item // keep original in case you want to pass full data later
+      price: item?.list_price,
+      beds: item?.description?.beds,
+      baths: item?.description?.baths,
+      sqft: item?.description?.sqft,
+      photos: item?.primary_photo?.href,
+      location: item?.location,
+      description: item?.description,
+      rental_estimate: item?.rental_estimate,
+      estimate: item?.estimate?.estimate
     }));
   } catch (error) {
-    console.error('Error searching properties:', error);
+    console.error('Error searching properties:', error.response?.data || error.message);
     return [];
   }
 };

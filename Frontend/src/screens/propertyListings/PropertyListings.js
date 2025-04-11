@@ -12,10 +12,9 @@ const PropertyListings = () => {
 
   const [loading, setLoading] = useState(true);
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 3000); // ⏳ simulate load
+    const timer = setTimeout(() => setLoading(false), 2000); // loader for 2s
     return () => clearTimeout(timer);
   }, []);
-  // Always declare hooks before any conditional return
   const handleCardClick = useCallback((property) => {
     navigate('/property-info', {
       state: {
@@ -34,7 +33,9 @@ const PropertyListings = () => {
       </Container>
     );
   }
-  if (loading) return <Loader />;
+
+  if (loading) return <Loader text="Loading listings..." />;
+
   return (
     <Box sx={{ bgcolor: '#fafafa', minHeight: '100vh' }}>
       <Header />
@@ -44,7 +45,7 @@ const PropertyListings = () => {
         </Typography>
         <Grid container spacing={3}>
           {listings.map((property, index) => (
-            <Grid item xs={12} sm={6} md={4} key={index}>
+            <Grid item xs={12} sm={6} md={4} key={property.property_id || index}>
               <Box onClick={() => handleCardClick(property)} sx={{ cursor: 'pointer' }}>
                 <PropertyCard property={property} />
               </Box>

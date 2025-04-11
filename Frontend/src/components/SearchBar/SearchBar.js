@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, Button, TextField, Paper, List, ListItem, ListItemText } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
-import mockData from '../../data/data.json'; // your local fallback dataset
+import { searchProperties } from '../../services/realtyApi'; // Use real API // your local fallback dataset
 import Loader from '../Loader/Loader';
+import debounce from 'lodash.debounce';
+
 
 const SearchBar = () => {
   const navigate = useNavigate();
@@ -32,27 +34,37 @@ const SearchBar = () => {
     }
   };
 
-  const performSearch = (input) => {
-    const term = input.toLowerCase();
-    return mockData.data?.home_search?.results?.filter((item) => {
-      const address = item?.location?.address;
-      return (
-        address?.line?.toLowerCase().includes(term) ||
-        address?.city?.toLowerCase().includes(term) ||
-        address?.state?.toLowerCase().includes(term) ||
-        address?.postal_code?.toLowerCase().includes(term)
-      );
-    }) || [];
+  const performSearch = async (input) => {
+    return await searchProperties(input);
   };
 
+  // const handleChange = async (e) => {
+  //   const value = e.target.value;
+  //   setSearchTerm(value);
+  //   setAnchorEl(e.currentTarget);
+  
+  //   if (value.length > 2) {
+  //     const results = await performSearch(value); // await the async function
+  //     setSuggestions(results.slice(0, 5)); // only call slice on actual array
+  //   } else {
+  //     setSuggestions([]);
+  //   }
+  // };
+  const debouncedSearch = useCallback(
+    debounce(async (value) => {
+      const results = await performSearch(value);
+      setSuggestions(results.slice(0, 5));
+    }, 1000), // waits 1000ms after typing stops
+    []
+  );
+  
   const handleChange = (e) => {
     const value = e.target.value;
     setSearchTerm(value);
     setAnchorEl(e.currentTarget);
-
+  
     if (value.length > 2) {
-      const results = performSearch(value);
-      setSuggestions(results.slice(0, 5)); // Top 5 suggestions
+      debouncedSearch(value); // Debounced API call
     } else {
       setSuggestions([]);
     }

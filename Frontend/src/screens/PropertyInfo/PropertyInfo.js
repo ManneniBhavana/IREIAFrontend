@@ -66,8 +66,15 @@ const PropertyInfo = () => {
             sx={{ width: '100%', height: 400, objectFit: 'cover' }}
           />
           <CardContent>
-            <Typography variant="h4" fontWeight="bold" gutterBottom>
-              ${property?.list_price?.toLocaleString() || 'Not Available'}
+          <Typography variant="h4" fontWeight="bold" gutterBottom>
+              {(() => {
+                const price =
+                  property?.price ||
+                  property?.list_price ||
+                  property?.listPrice ||
+                  property?.estimate?.estimate;
+                return price ? `$${price.toLocaleString()}` : 'Price not available';
+              })()}
             </Typography>
             <Typography variant="subtitle1" sx={{ mb: 1 }}>
               {property?.location?.address?.line}, {property?.location?.address?.city}, {property?.location?.address?.state}
@@ -191,7 +198,7 @@ const PropertyInfo = () => {
               lat: property?.location?.address?.coordinate?.lat,
               lng: property?.location?.address?.coordinate?.lon
             }}
-            price={property?.list_price}
+            price={ property?.price || property?.list_price || property?.listPrice || property?.estimate?.estimate}
             nearbyProperties={nearbyProperties}
           />
         </Box>
