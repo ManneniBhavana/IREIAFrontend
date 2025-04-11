@@ -2,12 +2,14 @@ import React from 'react';
 import { Card, CardContent, Typography, Box } from '@mui/material';
 
 const PropertyCard = ({ property }) => {
-  const photo = property?.primary_photo?.href || '/placeholder.png';
-  const price = property?.list_price;
-  const beds = property?.description?.beds;
-  const baths = property?.description?.baths;
-  const sqft = property?.description?.sqft;
+  const photo = property?.image || '/placeholder.png';
+  const price = property?.price;
+  const beds = property?.beds;
+  const baths = property?.baths;
+  const sqft = property?.sqft;
   const address = property?.location?.address;
+
+  console.log(property)
 
   return (
     <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', boxShadow: 3 }}>

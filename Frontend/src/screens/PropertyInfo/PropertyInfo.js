@@ -191,7 +191,7 @@ const PropertyInfo = () => {
               lat: property?.location?.address?.coordinate?.lat,
               lng: property?.location?.address?.coordinate?.lon
             }}
-            baseRent={baseRent}
+            price={property?.list_price}
             nearbyProperties={nearbyProperties}
           />
         </Box>
