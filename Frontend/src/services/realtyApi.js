@@ -13,7 +13,6 @@ const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 export const searchProperties = async (query) => {
   try {
     await delay(300);
-
     const isZip = /^\d{5}$/.test(query);
 
     const response = await realtyApi.get('/properties/v3/list', {
@@ -30,12 +29,15 @@ export const searchProperties = async (query) => {
 
     return results.map((item) => ({
       property_id: item?.property_id,
-      address: {
-        full: item?.location?.address?.line,
-        city: item?.location?.address?.city,
-        state: item?.location?.address?.state_code,
-        postal_code: item?.location?.address?.postal_code
-      }
+      price: item?.list_price || null,
+      image: item?.primary_photo?.href || null,
+      beds: item?.description?.beds ?? null,
+      baths: item?.description?.baths ?? null,
+      sqft: item?.description?.sqft ?? null,
+      location: item?.location || {},
+      estimate: item?.estimate?.estimate ?? null,
+      rental_estimate: item?.rental_estimate ?? null,
+      raw: item // keep original in case you want to pass full data later
     }));
   } catch (error) {
     console.error('Error searching properties:', error);

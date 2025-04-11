@@ -1,84 +1,9 @@
-
-
-// import React, { useState } from 'react';
-// import { useNavigate } from 'react-router-dom';
-// import { Box, Button, TextField } from '@mui/material';
-// import SearchIcon from '@mui/icons-material/Search';
-
-// const SearchBar = ({ performSearch }) => {
-//   const navigate = useNavigate();
-//   const [searchTerm, setSearchTerm] = useState('');
-//   const [suggestions, setSuggestions] = useState([]);
-//   const [loading, setLoading] = useState(false);
-
-
-//   const handleSearch = async () => {
-//     if (!searchTerm) return;
-//     setLoading(true);
-  
-//     const results = performSearch(searchTerm);
-//     setLoading(false);
-  
-//     if (!results || results.length === 0) {
-//       alert("No property found.");
-//     } else if (results.length === 1) {
-//       navigate('/property-info', { state: results[0] });
-//     } else {
-//       navigate('/property-listings', { state: results });
-//     }
-//   };
-
-//   return (
-//     <Box sx={{ position: 'relative', width: '100%' }}>
-//       <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
-//         <TextField
-//           fullWidth
-//           value={searchTerm}
-//           onChange={(e) => setSearchTerm(e.target.value)}
-//           onKeyDown={(e) => {
-//             if (e.key === 'Enter') handleSearch();
-//           }}
-//           placeholder="Enter an address, neighborhood, city, or ZIP code"
-//           variant="outlined"
-//           sx={{
-//             '& .MuiOutlinedInput-root': {
-//               color: 'white',
-//               '& fieldset': {
-//                 borderColor: 'rgba(255, 255, 255, 0.5)',
-//               },
-//               '&:hover fieldset': {
-//                 borderColor: 'white',
-//               },
-//               '&.Mui-focused fieldset': {
-//                 borderColor: 'white',
-//               },
-//             },
-//             '& .MuiInputBase-input::placeholder': {
-//               color: 'rgba(255, 255, 255, 0.7)',
-//             },
-//           }}
-//         />
-//         <Button
-//           variant="contained"
-//           onClick={handleSearch}
-//           disabled={loading}
-//           sx={{ bgcolor: '#c82021', minWidth: 'auto', px: 2 }}
-//         >
-//           <SearchIcon />
-//         </Button>
-//       </Box>
-//     </Box>
-//   );
-// };
-
-// export default SearchBar;
-
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, Button, TextField, Paper, List, ListItem, ListItemText } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import mockData from '../../data/data.json'; // your local fallback dataset
+import Loader from '../Loader/Loader';
 
 const SearchBar = () => {
   const navigate = useNavigate();
@@ -87,14 +12,23 @@ const SearchBar = () => {
   const [suggestions, setSuggestions] = useState([]);
   const [anchorEl, setAnchorEl] = useState(null);
 
-  const handleSearch = () => {
-    const matches = performSearch(searchTerm);
-    if (matches.length === 1) {
-      navigate('/property-info', { state: matches[0] });
-    } else if (matches.length > 1) {
-      navigate('/property-listings', { state: matches });
-    } else {
-      alert('No matching properties found.');
+
+  const handleSearch = async () => {
+    if (!searchTerm) return;
+    setLoading(true);
+    try {
+      const matches = await performSearch(searchTerm);
+      setTimeout(() => {
+        setLoading(false);
+        if (matches.length === 1) {
+          navigate('/property-info', { state: matches[0] });
+        } else {
+          navigate('/property-listings', { state: matches });
+        }
+      }, 2000); // Optional delay to make loader visible
+    } catch (error) {
+      setLoading(false);
+      alert("Search failed.");
     }
   };
 
@@ -130,7 +64,9 @@ const SearchBar = () => {
     navigate('/property-info', { state: item });
   };
 
+  {loading && <Loader text= "Searching..." /> }
   return (
+    
     <Box sx={{ position: 'relative', width: '100%' }}>
       <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
         <TextField

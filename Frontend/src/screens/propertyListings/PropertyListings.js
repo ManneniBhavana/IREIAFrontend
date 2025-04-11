@@ -1,14 +1,20 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Container, Grid, Typography, Box } from '@mui/material';
 import Header from '../../components/Header';
 import PropertyCard from '../../components/PropertyCard';
+import Loader from '../../components/Loader/Loader';
 
 const PropertyListings = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const listings = location.state;
 
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 3000); // ⏳ simulate load
+    return () => clearTimeout(timer);
+  }, []);
   // Always declare hooks before any conditional return
   const handleCardClick = useCallback((property) => {
     navigate('/property-info', {
@@ -28,7 +34,7 @@ const PropertyListings = () => {
       </Container>
     );
   }
-
+  if (loading) return <Loader />;
   return (
     <Box sx={{ bgcolor: '#fafafa', minHeight: '100vh' }}>
       <Header />
